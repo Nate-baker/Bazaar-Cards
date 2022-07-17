@@ -1,4 +1,7 @@
 //<-----------------------Class Declarataions------------------>
+
+//We convert the json object's key objects into our individual items
+//I could have used the original objects but I wanted to format it easier for myself by using this class
 class BazaarItem {
   constructor(id, sellSum = [], buySum = [], quickStatus = [], category = "", related = [], name = "") {
     this.id = id;
@@ -11,6 +14,8 @@ class BazaarItem {
 	this.margin = this.quickStatus.buyPrice - this.quickStatus.sellPrice;
   }
 
+
+//creates a new card add adds all information to it, then appends it to page
   toDiv() {
     let newDiv = createNewCardElement(this);
     return newDiv;
@@ -25,38 +30,44 @@ const mainDiv = document.getElementById("item-wrapper");
 const getReqOutput = JSON.parse(get("https://api.slothpixel.me/api/skyblock/bazaar"));
 const bazaarItemList = formatJson(getReqOutput);
 var filteredBazaarItemList = bazaarItemList;
-var filteredBazaarItemList;
 
+
+//if card is open you can use esc to exit card (calls unexpand())
 window.addEventListener('keydown', function(e){
 	if(e.code == "Escape"){
 		unexpand();
 	}
 });
 
+
+//create screen when page loads
 window.onload = function() {
   createScreen(bazaarItemList);
 
 }
 
 
-
 //<------------END Variable Declaration / Start Point---------->
 //<------------------------------------------------------------>
 //<--------------------Main Operation Functions---------------->
 
-function drawCard(newDiv) {
-  mainDiv.appendChild(newDiv);
+//Adds new element to main-div
+function drawCard(element) {
+  mainDiv.appendChild(element);
 }
 
+//expands selected card
 function expand(item) {
   item.classList.add("expanded-grid");
 }
 
+//collapses or "unexpands" opened card /
 function unexpand() {
   clearScreen();
   createScreen(filteredBazaarItemList);
 }
 
+//filters cards on screen to whats in search box
 function filterItems(target) {
   target = target.toLowerCase();
   filteredBazaarItemList = {};
@@ -70,12 +81,14 @@ function filterItems(target) {
 
 }
 
+//edits filtered array with the matches from search filter
 function setFilteredArray(keys) {
   for (const key of keys) {
     filteredBazaarItemList[key] = bazaarItemList[key];
   }
 }
 
+//Iterates through keys using .startsWith() to find matching items
 function findMatchingKeys(target) {
   let matches = [];
   const keys = Object.keys(bazaarItemList);
@@ -88,18 +101,21 @@ function findMatchingKeys(target) {
   return matches;
 }
 
+//Draws card on screen for each item
 function createScreen(obj) {
   for (const item in obj) {
     drawCard(bazaarItemList[item].toDiv());
   }
 }
 
+//Remvoes all cards from screen
 function clearScreen() {
   while (mainDiv.firstChild) {
     mainDiv.removeChild(mainDiv.firstChild);
   }
 }
 
+//Creates new card 
 function createNewCardElement(obj){
 	let newDiv = document.createElement("div");
     newDiv.classList.add("item");
@@ -117,6 +133,7 @@ function createNewCardElement(obj){
 	return newDiv;
 }
 
+//Creates header for card
 function createCardHeader(obj){
 	let newHeaderDiv = document.createElement("div");
 	newHeaderDiv.classList.add("item-header");
@@ -127,6 +144,7 @@ function createCardHeader(obj){
 	return newHeaderDiv;
 }
 
+//creates open card button for card
 function createOpenCardButton(){
 	let openCardButton = document.createElement("button");
     openCardButton.classList.add("open-card");
@@ -137,6 +155,7 @@ function createOpenCardButton(){
 	return openCardButton;
 }
 
+//creates close card button for card
 function createCloseCardButton(){
 	let closeCardButton = document.createElement("button");
     closeCardButton.classList.add("close-card");
@@ -147,6 +166,7 @@ function createCloseCardButton(){
 	return closeCardButton;
 }
 
+//creates info for internals of each card
 function createInfoDiv(obj){
 	let infoDiv = document.createElement("div");
 	infoDiv.classList.add("info-wrapper");
@@ -186,6 +206,8 @@ function createInfoDiv(obj){
 //<------------------END Main Operation Functions-------------->
 //<------------------------------------------------------------>
 //<-----------------------Helper Functions--------------------->
+
+//Gets data from api endpoint
 function get(URL) {
   var Httpreq = new XMLHttpRequest(); // a new request
   Httpreq.open("GET", URL, false);
@@ -193,10 +215,7 @@ function get(URL) {
   return Httpreq.responseText;
 }
 
-function isElement(element) {
-  return element instanceof Element || element instanceof HTMLDocument;
-}
-
+//Translates api json object into object following BazaarItem class
 function formatJson(obj) {
   let formattedObj = {};
   for (const item in obj) {
